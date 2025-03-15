@@ -1,20 +1,33 @@
 import { Button } from "@/components/ui/button"
-import { PlusCircle, Bot } from "lucide-react"
+import { PlusCircle } from "lucide-react"
 import Link from "next/link"
 import { DocumentCard } from "@/components/document-card"
 import { SearchBar } from "@/components/search-bar"
+import { UserProfile } from "@/components/user-profile"
+import { getAuthSession } from "@/lib/auth"
+import { redirect } from "next/navigation"
+import { listUserNotes } from "@/lib/blob-storage"
 
-export default function Home() {
+export default async function Home() {
+  const session = await getAuthSession()
+
+  if (!session?.user) {
+    redirect("/login")
+  }
+
+  // Get user's notes from Blob storage
+  const notes = await listUserNotes(session.user.id)
+
   return (
     <div className="flex min-h-screen bg-background">
       {/* Sidebar */}
       <aside className="hidden w-64 border-r bg-muted/40 p-4 md:block">
-        <div className="mb-8">
-          <h1 className="text-xl font-bold flex items-center gap-2">
-            NoteBuddy
-            <Bot className="h-7 w-7" />
-          </h1>
-          <p className="text-sm text-muted-foreground">Your personal note-taking app</p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold">NoteBuddy</h1>
+            <p className="text-sm text-muted-foreground">Your personal note-taking app</p>
+          </div>
+          <UserProfile />
         </div>
 
         <Button asChild className="mb-6 w-full justify-start gap-2">
@@ -42,7 +55,12 @@ export default function Home() {
         <div className="mx-auto max-w-5xl">
           <div className="mb-8 flex items-center justify-between">
             <h2 className="text-2xl font-bold">All Notes</h2>
-            <SearchBar />
+            <div className="flex items-center gap-4">
+              <SearchBar />
+              <div className="md:hidden">
+                <UserProfile />
+              </div>
+            </div>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -53,26 +71,32 @@ export default function Home() {
               </div>
             </Link>
 
-            <DocumentCard
-              id="1"
-              title="Getting Started with NoteBuddy"
-              excerpt="Learn how to use NoteBuddy to organize your notes and documents."
-              updatedAt="2 hours ago"
-            />
-
-            <DocumentCard
-              id="2"
-              title="Project Ideas"
-              excerpt="Brainstorming session for upcoming projects and initiatives."
-              updatedAt="Yesterday"
-            />
-
-            <DocumentCard
-              id="3"
-              title="Meeting Notes: Team Sync"
-              excerpt="Weekly team sync discussion points and action items."
-              updatedAt="3 days ago"
-            />
+            {notes.length > 0 ? (
+              notes.map((note) => (
+                <DocumentCard
+                  key={note.id}
+                  id={note.id}
+                  title={note.title}
+                  excerpt={note.content.replace(/<[^>]*>/g, "").substring(0, 100) + "..."}
+                  updatedAt={new Date(note.updatedAt).toLocaleString()}
+                />
+              ))
+            ) : (
+              <>
+                <DocumentCard
+                  id="1"
+                  title="Getting Started with NoteBuddy"
+                  excerpt="Learn how to use NoteBuddy to organize your notes and documents."
+                  updatedAt="2 hours ago"
+                />
+                <DocumentCard
+                  id="2"
+                  title="Project Ideas"
+                  excerpt="Brainstorming session for upcoming projects and initiatives."
+                  updatedAt="Yesterday"
+                />
+              </>
+            )}
           </div>
         </div>
       </main>

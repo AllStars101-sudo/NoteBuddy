@@ -5,9 +5,14 @@ import StarterKit from "@tiptap/starter-kit"
 import Placeholder from "@tiptap/extension-placeholder"
 import { Button } from "@/components/ui/button"
 import { Bold, Italic, List, ListOrdered, Heading1, Heading2, Code, Quote } from "lucide-react"
-import { useCallback } from "react"
+import { useCallback, useEffect } from "react"
 
-export function Editor() {
+interface EditorProps {
+  initialContent?: string
+  onChange?: (content: string) => void
+}
+
+export function Editor({ initialContent = "", onChange }: EditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -15,7 +20,9 @@ export function Editor() {
         placeholder: 'Start writing or type "/" for commands...',
       }),
     ],
-    content: `
+    content:
+      initialContent ||
+      `
       <h1>Welcome to NoteBuddy</h1>
       <p>This is a simple note-taking app inspired by Notion. You can:</p>
       <ul>
@@ -31,7 +38,18 @@ export function Editor() {
         class: "prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none max-w-none",
       },
     },
+    onUpdate: ({ editor }) => {
+      if (onChange) {
+        onChange(editor.getHTML())
+      }
+    },
   })
+
+  useEffect(() => {
+    if (editor && initialContent && editor.getHTML() !== initialContent) {
+      editor.commands.setContent(initialContent)
+    }
+  }, [editor, initialContent])
 
   const toggleBold = useCallback(() => {
     editor?.chain().focus().toggleBold().run()
