@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { PlusCircle } from "lucide-react"
+import { PlusCircle, Bot } from "lucide-react"
 import Link from "next/link"
 import { DocumentCard } from "@/components/document-card"
 import { SearchBar } from "@/components/search-bar"
@@ -10,7 +10,10 @@ export default function Home() {
       {/* Sidebar */}
       <aside className="hidden w-64 border-r bg-muted/40 p-4 md:block">
         <div className="mb-8">
-          <h1 className="text-xl font-bold">NoteBuddy</h1>
+          <h1 className="text-xl font-bold flex items-center gap-2">
+            NoteBuddy
+            <Bot className="h-7 w-7" />
+          </h1>
           <p className="text-sm text-muted-foreground">Your personal note-taking app</p>
         </div>
 
