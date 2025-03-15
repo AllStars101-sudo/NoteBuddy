@@ -27,19 +27,25 @@ export async function transcribeAndAnalyzeAudio(audioBlob: ArrayBuffer, noteId: 
   }
 
   try {
-    // Convert ArrayBuffer to File
-    const file = new File([audioBlob], "recording.webm", { type: "audio/webm" })
-
-    // Save audio file to Vercel Blob
+    // Save audio file to Vercel Blob using Buffer instead of File
+    const buffer = Buffer.from(audioBlob)
     const audioPath = `recordings/${session.user.id}/${noteId}/${Date.now()}.webm`
-    const blob = await put(audioPath, file, {
+    const blob = await put(audioPath, buffer, {
       access: "public",
       addRandomSuffix: false,
+      contentType: "audio/webm",
     })
 
-    // Transcribe audio using Whisper API
+    // Create FormData for Whisper API
     const formData = new FormData()
-    formData.append("file", file)
+
+    // Use the blob URL to create a temporary file for the Whisper API
+    const audioResponse = await fetch(blob.url)
+    const audioArrayBuffer = await audioResponse.arrayBuffer()
+    const audioBuffer = Buffer.from(audioArrayBuffer)
+
+    // Add the buffer to FormData with proper filename and type
+    formData.append("file", new Blob([audioBuffer], { type: "audio/webm" }), "recording.webm")
     formData.append("model", "whisper-1")
 
     const whisperResponse = await fetch("https://api.openai.com/v1/audio/transcriptions", {
@@ -77,18 +83,18 @@ ${transcription}
 
 Format your response as JSON with the following structure:
 {
-  "summary": "concise summary here",
-  "keyPoints": ["point 1", "point 2", "point 3"],
-  "isLecture": true/false,
-  "quiz": {
-    "questions": [
-      {
-        "question": "Question text",
-        "options": ["Option A", "Option B", "Option C", "Option D"],
-        "correctAnswer": 0 // Index of correct answer (0-based)
-      }
-    ]
-  }
+ "summary": "concise summary here",
+ "keyPoints": ["point 1", "point 2", "point 3"],
+ "isLecture": true/false,
+ "quiz": {
+   "questions": [
+     {
+       "question": "Question text",
+       "options": ["Option A", "Option B", "Option C", "Option D"],
+       "correctAnswer": 0 // Index of correct answer (0-based)
+     }
+   ]
+ }
 }
 `
 
@@ -154,4 +160,3 @@ function tryParseArray(text: string): string[] | null {
     return null
   }
 }
-
