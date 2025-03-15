@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Loader2 } from "lucide-react"
 import { useSearchParams, useRouter } from "next/navigation"
+import { RobotLogo } from "@/components/robot-logo"
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -14,9 +15,9 @@ export default function LoginPage() {
   const router = useRouter()
   const { data: session, status } = useSession()
 
-  const callbackUrl = searchParams?.get("callbackUrl") || "/"
+  const callbackUrl = searchParams?.get("callbackUrl") || "/dashboard"
 
-  // If already authenticated, redirect to home
+  // If already authenticated, redirect to dashboard
   useEffect(() => {
     if (status === "authenticated") {
       router.push(callbackUrl)
@@ -57,12 +58,14 @@ export default function LoginPage() {
       <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-2xl font-bold">NoteBuddy</CardTitle>
-            <CardDescription>Sign in to access your notes and files</CardDescription>
+            <CardTitle className="text-2xl font-bold">
+              NoteBuddy <span className="text-primary">🤖</span>
+            </CardTitle>
+            <CardDescription>Your AI-powered note-taking assistant</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col items-center">
-            <div className="mb-4 h-24 w-24">
-              <img src="/placeholder.svg?height=96&width=96" alt="NoteBuddy Logo" className="h-full w-full" />
+            <div className="mb-6">
+              <RobotLogo size={120} className="mx-auto" />
             </div>
             {error && (
               <div className="mb-4 w-full rounded-md bg-destructive/15 p-3 text-center text-sm text-destructive">
