@@ -41,6 +41,7 @@ export default function DocumentPage({ params }: { params: { id: string } }) {
   const [isLoading, setIsLoading] = useState(true)
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "unsaved">("saved")
 
+
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login")
@@ -176,6 +177,115 @@ export default function DocumentPage({ params }: { params: { id: string } }) {
     )
   }
 
+  const getEditorContent = () => {
+    const content = editorRef.current
+    if (!content) return null
+    
+    // Find the actual editor content (ProseMirror content) without the toolbar
+    const editorContent = content.querySelector('.ProseMirror') || 
+                         content.querySelector('.min-h-\\[500px\\]') ||
+                         content.querySelector('div[contenteditable="true"]')
+    
+    if (!editorContent) {
+      alert('Could not find editor content')
+      return null
+    }
+    
+    return editorContent
+  }
+
+  const handleExportPDF = () => {
+    const editorContent = getEditorContent()
+    if (!editorContent) return
+    
+    // Create a style element for the PDF
+    const style = document.createElement('style')
+    style.textContent = `
+      body { 
+        font-family: Arial, sans-serif;
+        padding: 40px;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      h1 { font-size: 24px; margin-bottom: 16px; }
+      p { margin-bottom: 8px; }
+    `
+    
+    // Create a new document for printing
+    const printWindow = window.open('', '_blank')
+    if (!printWindow) {
+      alert('Please allow popups for this website')
+      return
+    }
+    
+    // Set up the print document
+    printWindow.document.open()
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>${title}</title>
+          ${style.outerHTML}
+        </head>
+        <body>
+          <h1>${title}</h1>
+          ${editorContent.innerHTML}
+        </body>
+      </html>
+    `)
+    printWindow.document.close()
+    
+    // Trigger print dialog which allows saving as PDF
+    setTimeout(() => {
+      printWindow.print()
+      // Close the window after printing (or if print is canceled)
+      setTimeout(() => {
+        printWindow.close()
+      }, 500)
+    }, 500)
+  }
+
+  const handleExportDOCX = () => {
+    const editorContent = getEditorContent()
+    if (!editorContent) return
+    
+    // Create the HTML content for the document
+    const htmlContent = `
+      <html xmlns:o='urn:schemas-microsoft-com:office:office' 
+            xmlns:w='urn:schemas-microsoft-com:office:word' 
+            xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+          <meta charset="utf-8">
+          <title>${title}</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              font-size: 12pt;
+            }
+            h1 { font-size: 16pt; }
+          </style>
+        </head>
+        <body>
+          <h1>${title}</h1>
+          ${editorContent.innerHTML}
+        </body>
+      </html>
+    `
+
+    // Create a Blob with the content
+    const blob = new Blob([htmlContent], { type: 'application/msword' })
+    
+    // Create a link and trigger download
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = `${title}.doc`
+    document.body.appendChild(link)
+    link.click()
+    
+    // Clean up
+    document.body.removeChild(link)
+    URL.revokeObjectURL(link.href)
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
@@ -226,7 +336,22 @@ export default function DocumentPage({ params }: { params: { id: string } }) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>Export</DropdownMenuItem>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      <span>Export</span>
+                    </div>
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuItem onClick={handleExportPDF}>
+                      PDF
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleExportDOCX}>
+                      DOCX
+                    </DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
                 <DropdownMenuItem>Share</DropdownMenuItem>
                 <DropdownMenuItem className="text-destructive" onClick={() => setIsDeleteDialogOpen(true)}>
                   Delete
