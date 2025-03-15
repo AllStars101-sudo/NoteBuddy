@@ -11,13 +11,8 @@ export async function middleware(req: NextRequest) {
   // Get the pathname
   const path = req.nextUrl.pathname
 
-  // If user is authenticated and trying to access the root path, redirect to dashboard
-  if (token && path === "/") {
-    return NextResponse.redirect(new URL("/dashboard", req.url))
-  }
-
   // Allow public routes and API routes
-  const isPublicPath = path === "/" || path === "/login" || path === "/error"
+  const isPublicPath = path === "/login" || path === "/error"
   const isApiPath = path.startsWith("/api/")
   const isStaticPath = path.startsWith("/_next/") || path.includes("/favicon.ico") || path.startsWith("/images/")
 
@@ -33,9 +28,9 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // If user is authenticated and trying to access login, redirect to dashboard
+  // If user is authenticated and trying to access login, redirect to home
   if (token && path === "/login") {
-    return NextResponse.redirect(new URL("/dashboard", req.url))
+    return NextResponse.redirect(new URL("/", req.url))
   }
 
   return NextResponse.next()
