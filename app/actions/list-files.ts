@@ -13,11 +13,8 @@ export async function listFiles(noteId?: string) {
   const userId = session.user.id
 
   try {
-    console.log(`[LIST_FILES] Listing files for user ${userId}${noteId ? ` and note ${noteId}` : ""}`)
-
     // List all blobs
     const { blobs } = await list()
-    console.log(`[LIST_FILES] Total blobs found: ${blobs.length}`)
 
     // Filter blobs by user ID and optionally by note ID
     const userBlobs = blobs.filter((blob) => {
@@ -33,71 +30,24 @@ export async function listFiles(noteId?: string) {
         belongsToNote = blob.pathname.includes(`/${noteId}/`) || (blob.metadata && blob.metadata.noteId === noteId)
       }
 
-      const shouldInclude = (belongsToUser || hasUserMetadata) && belongsToNote
-
-      // Log detailed info for debugging
-      if (shouldInclude) {
-        console.log(`[LIST_FILES] Including blob: ${blob.pathname}`)
-      }
-
-      return shouldInclude
+      return (belongsToUser || hasUserMetadata) && belongsToNote
     })
 
-    console.log(`[LIST_FILES] Filtered blobs for user: ${userBlobs.length}`)
-
-    // Map blobs to file objects with proper error handling
-    const files = userBlobs.map((blob) => {
-      try {
-        // Extract filename from pathname
-        const pathParts = blob.pathname.split("/")
-        const fileName = pathParts[pathParts.length - 1] || "Unknown file"
-
-        // Determine content type
-        let contentType = blob.contentType || ""
-        if (!contentType) {
-          // Try to infer content type from filename
-          if (fileName.endsWith(".pdf")) contentType = "application/pdf"
-          else if (fileName.endsWith(".txt")) contentType = "text/plain"
-          else if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) contentType = "image/jpeg"
-          else if (fileName.endsWith(".png")) contentType = "image/png"
-          else if (fileName.endsWith(".docx"))
-            contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        }
-
-        return {
-          url: blob.url || "",
-          pathname: blob.pathname || "",
-          name: fileName,
-          size: blob.size || 0,
-          uploadedAt: blob.uploadedAt || new Date().toISOString(),
-          contentType: contentType,
-          userId: userId,
-          noteId: blob.metadata?.noteId || "",
-        }
-      } catch (itemError) {
-        console.error(`[LIST_FILES] Error processing blob item:`, itemError, blob)
-        // Return a minimal valid file object
-        return {
-          url: blob.url || "",
-          pathname: blob.pathname || "",
-          name: "Error processing file",
-          size: 0,
-          uploadedAt: new Date().toISOString(),
-          contentType: "",
-          userId: userId,
-          noteId: "",
-        }
-      }
-    })
-
-    console.log(`[LIST_FILES] Successfully processed ${files.length} files`)
     return {
       success: true,
-      files,
+      files: userBlobs.map((blob) => ({
+        url: blob.url || "",
+        pathname: blob.pathname || "",
+        size: blob.size || 0,
+        uploadedAt: blob.uploadedAt || new Date().toISOString(),
+        contentType: blob.contentType || "",
+        userId: userId,
+        noteId: blob.metadata?.noteId || "",
+      })),
     }
   } catch (error) {
-    console.error("[LIST_FILES] Error listing files:", error)
-    return { error: "Failed to list files: " + (error instanceof Error ? error.message : String(error)) }
+    console.error("Error listing files:", error)
+    return { error: "Failed to list files" }
   }
 }
 

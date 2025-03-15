@@ -1,13 +1,14 @@
 import { Button } from "@/components/ui/button"
-import { PlusCircle, Search } from "lucide-react"
+import { PlusCircle } from "lucide-react"
 import Link from "next/link"
 import { DocumentCard } from "@/components/document-card"
+import { SearchBar } from "@/components/search-bar"
 import { UserProfile } from "@/components/user-profile"
 import { getAuthSession } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { listUserNotes } from "@/lib/blob-storage"
 
-export default async function Home() {
+export default async function DashboardPage() {
   const session = await getAuthSession()
 
   if (!session?.user) {
@@ -38,16 +39,10 @@ export default async function Home() {
 
         <nav className="space-y-1">
           <Button variant="ghost" className="w-full justify-start" asChild>
-            <Link href="/">All Notes</Link>
+            <Link href="/dashboard">All Notes</Link>
           </Button>
           <Button variant="ghost" className="w-full justify-start" asChild>
             <Link href="/favorites">Favorites</Link>
-          </Button>
-          <Button variant="ghost" className="w-full justify-start" asChild>
-            <Link href="/search">
-              <Search className="mr-2 h-4 w-4" />
-              Search Notes
-            </Link>
           </Button>
           <Button variant="ghost" className="w-full justify-start" asChild>
             <Link href="/trash">Trash</Link>
@@ -61,12 +56,7 @@ export default async function Home() {
           <div className="mb-8 flex items-center justify-between">
             <h2 className="text-2xl font-bold">All Notes</h2>
             <div className="flex items-center gap-4">
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/search">
-                  <Search className="mr-2 h-4 w-4" />
-                  Search
-                </Link>
-              </Button>
+              <SearchBar />
               <div className="md:hidden">
                 <UserProfile />
               </div>
