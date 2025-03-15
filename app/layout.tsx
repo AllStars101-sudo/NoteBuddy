@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   title: "NoteBuddy",
   description: "A note-taking app inspired by Notion",
   icons: {
-    icon: "/icon.png",
+    icon: "/favicon.png",
   },
     generator: 'v0.dev'
 }
@@ -35,7 +35,3 @@ export default function RootLayout({
     </html>
   )
 }
-
-
-
-import './globals.css'
