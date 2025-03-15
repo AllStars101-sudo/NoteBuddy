@@ -1,0 +1,303 @@
+/* AI-focused gradients and effects */
+.ai-gradient-border {
+  position: relative;
+  border-radius: 0.75rem;
+  padding: 1px;
+  background: linear-gradient(45deg, rgb(124, 58, 237, 0.5), rgb(99, 102, 241, 0.5), rgb(59, 130, 246, 0.5));
+}
+
+.ai-gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 0.75rem;
+  padding: 1px;
+  background: linear-gradient(45deg, rgb(124, 58, 237), rgb(99, 102, 241), rgb(59, 130, 246));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.5;
+}
+
+.ai-glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ai-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+.ai-panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(124, 58, 237, 0.5),
+    rgba(99, 102, 241, 0.5),
+    rgba(59, 130, 246, 0.5),
+    transparent
+  );
+}
+
+.ai-glow {
+  position: relative;
+}
+
+.ai-glow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(45deg, rgb(124, 58, 237), rgb(99, 102, 241), rgb(59, 130, 246));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.ai-glow:hover::after {
+  opacity: 1;
+}
+
+/* Animated microphone pulse - FIXED to appear behind the icon */
+.ai-mic-button {
+  position: relative;
+  z-index: 1; /* Ensure the button content is above the animation */
+}
+
+.ai-mic-button::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 9999px;
+  background: conic-gradient(from 0deg, rgb(124, 58, 237), rgb(99, 102, 241), rgb(59, 130, 246), rgb(124, 58, 237));
+  animation: rotate 4s linear infinite;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -2; /* Place behind the button and the ::after pseudo-element */
+}
+
+.ai-mic-button:hover::before {
+  opacity: 1;
+}
+
+.ai-mic-button::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 9999px;
+  background: var(--background);
+  z-index: -1; /* Place behind the button but above the ::before pseudo-element */
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Voice recording animation */
+.ai-recording-waves {
+  position: relative;
+  z-index: 1; /* Ensure the button content is above the animation */
+}
+
+.ai-recording-waves::before,
+.ai-recording-waves::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 9999px;
+  background: linear-gradient(45deg, rgba(124, 58, 237, 0.5), rgba(99, 102, 241, 0.5), rgba(59, 130, 246, 0.5));
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  z-index: -1; /* Place behind the button content */
+}
+
+.ai-recording-waves::after {
+  animation-delay: 1s;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* AI content transitions */
+.ai-content-transition {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ai-content-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.ai-content-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Neural network background pattern */
+.neural-bg {
+  position: relative;
+  overflow: hidden;
+}
+
+.neural-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at 2px 2px, rgba(124, 58, 237, 0.1) 1px, transparent 0);
+  background-size: 24px 24px;
+  mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+  opacity: 0.5;
+}
+
+/* Recording timer styles */
+.recording-timer {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+}
+
+.recording-timer-dot {
+  height: 0.5rem;
+  width: 0.5rem;
+  border-radius: 9999px;
+  margin-right: 0.5rem;
+  animation: pulse-dot 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* New styles for the redesigned transcription UI */
+.transcription-container {
+  position: relative;
+  z-index: 10; /* Ensure it's above other elements */
+  transition: all 0.3s ease-in-out;
+}
+
+.transcription-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(to right, rgba(124, 58, 237, 0.05), rgba(59, 130, 246, 0.05));
+}
+
+.transcription-content {
+  max-height: 60vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(124, 58, 237, 0.3) transparent;
+}
+
+.transcription-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.transcription-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.transcription-content::-webkit-scrollbar-thumb {
+  background-color: rgba(124, 58, 237, 0.3);
+  border-radius: 3px;
+}
+
+/* Ensure tooltips are always on top */
+.tooltip-wrapper {
+  position: relative;
+  z-index: 50;
+}
+
+/* Floating action button styles */
+.floating-action-button {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 100;
+  height: 3rem;
+  width: 3rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.5);
+  transition: all 0.2s ease;
+}
+
+.floating-action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px -5px rgba(124, 58, 237, 0.6);
+}
+
+/* Animated gradient background */
+.animated-gradient {
+  background: linear-gradient(-45deg, #7c3aed, #6366f1, #3b82f6, #8b5cf6);
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Frosted glass effect */
+.frosted-glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Subtle hover effects */
+.subtle-hover {
+  transition: all 0.2s ease;
+}
+
+.subtle-hover:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  transform: translateY(-1px);
+}
+

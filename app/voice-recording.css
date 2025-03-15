@@ -1,0 +1,147 @@
+.recording-pulse {
+  position: relative;
+}
+
+.recording-pulse::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: rgba(239, 68, 68, 0.7);
+  border-radius: 9999px;
+  animation: pulse 2s infinite;
+  z-index: -1;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  70% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.slide-transition {
+  transition: transform 0.3s ease-in-out;
+}
+
+.slide-left {
+  transform: translateX(-50%);
+  width: 50%;
+}
+
+/* Enhance the transcription panel */
+.transcription-panel {
+  position: relative;
+  height: 100%;
+  overflow-y: auto;
+  background-color: var(--background);
+  border-left: 1px solid var(--border);
+  border-radius: 0.5rem;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.05);
+  z-index: 10;
+}
+
+.quiz-option {
+  transition: background-color 0.2s ease;
+}
+
+.quiz-option:hover {
+  background-color: rgba(var(--primary), 0.1);
+}
+
+.quiz-option.selected {
+  background-color: rgba(var(--primary), 0.2);
+}
+
+.quiz-option.correct {
+  background-color: rgba(74, 222, 128, 0.2);
+}
+
+.quiz-option.incorrect {
+  background-color: rgba(248, 113, 113, 0.2);
+}
+
+/* Add smooth transitions for the editor layout */
+.editor-container {
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.editor-container.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* Add a subtle divider between editor and transcription */
+.transcription-divider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, var(--border), transparent);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+}
+
+/* Add a subtle highlight effect for the active panel */
+.active-panel {
+  position: relative;
+}
+
+.active-panel::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 0 2px var(--primary / 10);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.active-panel:focus-within::after {
+  opacity: 1;
+}
+
+/* Enhance the insert button */
+.insert-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.insert-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, var(--primary / 0), var(--primary / 20), var(--primary / 0));
+  transform: translateX(-100%);
+  animation: shimmer 2s infinite;
+  z-index: 0;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+

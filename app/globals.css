@@ -92,3 +92,10 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+@import "./predictive-typing.css";
+@import "./summary.css";
+@import "./file-context.css";
+@import "./voice-recording.css";
+@import "./ai-interface.css";
+

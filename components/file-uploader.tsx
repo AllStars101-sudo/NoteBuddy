@@ -7,6 +7,7 @@ import { X, Upload, File, FileText, FileImage, FileIcon as FilePdf, Loader2 } fr
 import { useDropzone } from "react-dropzone"
 import { uploadFile } from "@/app/actions/upload-file"
 import { deleteFile } from "@/app/actions/delete-file"
+import { processFileForContext } from "@/app/actions/process-file"
 import { useToast } from "@/hooks/use-toast"
 import { ALLOWED_FILE_EXTENSIONS } from "@/lib/blob-storage"
 
@@ -24,10 +25,11 @@ type UploadedFile = {
   url: string
   uploadedAt: string
   noteId?: string
+  contextProcessed?: boolean
 }
 
 export function FileUploader({ onClose, onFileUploaded, documentId }: FileUploaderProps) {
-  const [files, setFiles] = useState<(UploadedFile & { progress: number })[]>([])
+  const [files, setFiles] = useState<(UploadedFile & { progress: number; processing?: boolean })[]>([])
   const [isUploading, setIsUploading] = useState(false)
   const { toast } = useToast()
 
@@ -91,9 +93,50 @@ export function FileUploader({ onClose, onFileUploaded, documentId }: FileUpload
               ),
             )
 
+            // Process file for context if we have a document ID
+            if (documentId) {
+              // Mark file as processing
+              setFiles((prev) =>
+                prev.map((f) =>
+                  f.name === file.name
+                    ? {
+                        ...f,
+                        processing: true,
+                      }
+                    : f,
+                ),
+              )
+
+              // Process the file for context
+              const contextResult = await processFileForContext(result.url, documentId)
+
+              // Update file status based on processing result
+              setFiles((prev) =>
+                prev.map((f) =>
+                  f.name === file.name
+                    ? {
+                        ...f,
+                        processing: false,
+                        contextProcessed: contextResult.success,
+                      }
+                    : f,
+                ),
+              )
+
+              if (contextResult.success) {
+                toast({
+                  title: "File processed",
+                  description: `${file.name} has been processed for AI context.`,
+                })
+              }
+            }
+
             // Notify parent component if callback provided
             if (onFileUploaded) {
-              onFileUploaded(result as UploadedFile)
+              onFileUploaded({
+                ...(result as UploadedFile),
+                contextProcessed: documentId ? true : false,
+              })
             }
 
             toast({
@@ -166,6 +209,10 @@ export function FileUploader({ onClose, onFileUploaded, documentId }: FileUpload
   }
 
   const formatFileSize = (bytes: number) => {
+    if (bytes === null || bytes === undefined || isNaN(bytes) || bytes === 0) {
+      return "Unknown size"
+    }
+
     if (bytes < 1024) return bytes + " B"
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB"
     return (bytes / (1024 * 1024)).toFixed(1) + " MB"
@@ -221,21 +268,33 @@ export function FileUploader({ onClose, onFileUploaded, documentId }: FileUpload
                 <div className="flex items-center gap-3">
                   {getFileIcon(file.contentType)}
                   <div className="flex-1 min-w-0">
-                    <p className="truncate text-sm font-medium">{file.name}</p>
+                    <div className="flex items-center">
+                      <p className="truncate text-sm font-medium">{file.name}</p>
+                      {file.contextProcessed && (
+                        <span className="ml-2 inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                          AI Context
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
                     <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
                       <div
-                        className={`h-full transition-all ${file.progress === 100 ? "bg-green-500" : "bg-primary"}`}
+                        className={`h-full transition-all ${
+                          file.progress === 100 ? "bg-green-500" : file.processing ? "bg-yellow-500" : "bg-primary"
+                        }`}
                         style={{ width: `${file.progress}%` }}
                       />
                     </div>
+                    {file.processing && (
+                      <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">Processing for AI context...</p>
+                    )}
                   </div>
                   <Button
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8"
                     onClick={() => handleDeleteFile(file.url, file.name)}
-                    disabled={file.progress < 100}
+                    disabled={file.progress < 100 || file.processing}
                   >
                     <X className="h-4 w-4" />
                   </Button>
