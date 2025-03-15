@@ -30,14 +30,14 @@ export async function createNote(formData: FormData) {
       isFavorite: false,
     }
 
-    // Save note to Vercel Blob
+    // Save note to Vercel Blob as Markdown
     await saveNoteToBlob(newNote)
 
     revalidatePath("/")
     return { success: true, noteId }
   } catch (error) {
     console.error("Error creating note:", error)
-    return { error: "Failed to create note" }
+    return { error: "Failed to create note: " + (error instanceof Error ? error.message : String(error)) }
   }
 }
 
@@ -56,27 +56,59 @@ export async function updateNote(noteId: string, formData: FormData) {
     // Get existing note
     const existingNote = await getNoteFromBlob(userId, noteId)
 
+    // If note doesn't exist in Blob storage, create a new one
     if (!existingNote) {
-      return { error: "Note not found or you do not have permission to edit it" }
+      const now = new Date()
+      const newNote: Note = {
+        id: noteId,
+        title,
+        content,
+        userId,
+        createdAt: now,
+        updatedAt: now,
+        isFavorite: false,
+      }
+
+      await saveNoteToBlob(newNote)
+      revalidatePath("/")
+      return { success: true }
     }
 
-    // Update note
+    // Ensure dates are properly handled
+    let createdAt: Date
+    if (existingNote.createdAt instanceof Date) {
+      createdAt = existingNote.createdAt
+    } else if (typeof existingNote.createdAt === "string") {
+      createdAt = new Date(existingNote.createdAt)
+    } else {
+      createdAt = new Date()
+    }
+
+    // Validate the date
+    if (isNaN(createdAt.getTime())) {
+      createdAt = new Date()
+    }
+
+    // Update note with proper date handling
     const updatedNote: Note = {
       ...existingNote,
       title,
       content,
       updatedAt: new Date(),
+      // Ensure we keep the original creation date
+      createdAt: existingNote.createdAt instanceof Date ? existingNote.createdAt : new Date(existingNote.createdAt),
     }
 
-    // Save updated note to Vercel Blob
+    // Save updated note to Vercel Blob as Markdown
     await saveNoteToBlob(updatedNote)
 
+    // Only revalidate the home page, not the current document page
     revalidatePath("/")
-    revalidatePath(`/documents/${noteId}`)
+
     return { success: true }
   } catch (error) {
     console.error("Error updating note:", error)
-    return { error: "Failed to update note" }
+    return { error: "Failed to update note: " + (error instanceof Error ? error.message : String(error)) }
   }
 }
 
@@ -103,7 +135,7 @@ export async function toggleFavorite(noteId: string) {
       isFavorite: !existingNote.isFavorite,
     }
 
-    // Save updated note to Vercel Blob
+    // Save updated note to Vercel Blob as Markdown
     await saveNoteToBlob(updatedNote)
 
     revalidatePath("/")
@@ -111,7 +143,7 @@ export async function toggleFavorite(noteId: string) {
     return { success: true, isFavorite: updatedNote.isFavorite }
   } catch (error) {
     console.error("Error toggling favorite:", error)
-    return { error: "Failed to update note" }
+    return { error: "Failed to update note: " + (error instanceof Error ? error.message : String(error)) }
   }
 }
 
@@ -136,7 +168,7 @@ export async function deleteNote(noteId: string) {
     return { success: true }
   } catch (error) {
     console.error("Error deleting note:", error)
-    return { error: "Failed to delete note" }
+    return { error: "Failed to delete note: " + (error instanceof Error ? error.message : String(error)) }
   }
 }
 
@@ -156,7 +188,7 @@ export async function getNotes() {
     return { success: true, notes }
   } catch (error) {
     console.error("Error getting notes:", error)
-    return { error: "Failed to get notes" }
+    return { error: "Failed to get notes: " + (error instanceof Error ? error.message : String(error)) }
   }
 }
 
@@ -180,7 +212,7 @@ export async function getNote(noteId: string) {
     return { success: true, note }
   } catch (error) {
     console.error("Error getting note:", error)
-    return { error: "Failed to get note" }
+    return { error: "Failed to get note: " + (error instanceof Error ? error.message : String(error)) }
   }
 }
 

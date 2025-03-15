@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Star, MoreHorizontal, FileUp, Save } from "lucide-react"
 import Link from "next/link"
@@ -15,6 +15,8 @@ import { createNote } from "@/app/actions/notes"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { debounce } from "lodash"
+import { saveNoteToLocalStorage, isLocalStorageAvailable } from "@/lib/local-storage"
+import { useSession } from "next-auth/react"
 
 export default function NewDocumentPage() {
   const [title, setTitle] = useState("Untitled")
@@ -26,6 +28,40 @@ export default function NewDocumentPage() {
   const [noteId, setNoteId] = useState<string | null>(null)
   const router = useRouter()
   const { toast } = useToast()
+  const { data: session } = useSession()
+
+  // Save to localStorage whenever content changes
+  useEffect(() => {
+    if (noteId && (title !== "Untitled" || content !== "")) {
+      const note = {
+        id: noteId,
+        title,
+        content,
+        userId: session?.user?.id || "",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        isFavorite,
+      }
+
+      if (isLocalStorageAvailable()) {
+        saveNoteToLocalStorage(note)
+      }
+    }
+  }, [noteId, title, content, isFavorite, session?.user?.id])
+
+  // Warn before unload if there are unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (saveStatus === "unsaved") {
+        e.preventDefault()
+        e.returnValue = "You have unsaved changes. Are you sure you want to leave?"
+        return e.returnValue
+      }
+    }
+
+    window.addEventListener("beforeunload", handleBeforeUnload)
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload)
+  }, [saveStatus])
 
   // Debounced save function
   const debouncedSave = useCallback(
@@ -39,19 +75,38 @@ export default function NewDocumentPage() {
           formData.append("title", noteTitle)
           formData.append("content", noteContent)
 
+          // First save to localStorage if available
+          if (isLocalStorageAvailable()) {
+            const tempId = Date.now().toString()
+            setNoteId(tempId)
+
+            const note = {
+              id: tempId,
+              title: noteTitle,
+              content: noteContent,
+              userId: session?.user?.id || "",
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              isFavorite: false,
+            }
+
+            saveNoteToLocalStorage(note)
+            setSaveStatus("saved")
+          }
+
+          // Then save to server
           const result = await createNote(formData)
 
           if (result.success && result.noteId) {
             setNoteId(result.noteId)
             setSaveStatus("saved")
 
-            // Redirect to the new note page
-            router.push(`/documents/${result.noteId}`)
+            // Update URL without refreshing
+            window.history.replaceState({}, "", `/documents/${result.noteId}`)
           } else {
-            setSaveStatus("unsaved")
             toast({
               title: "Save failed",
-              description: result.error || "Failed to create note",
+              description: result.error || "Failed to save note",
               variant: "destructive",
             })
           }
@@ -61,12 +116,12 @@ export default function NewDocumentPage() {
         setSaveStatus("unsaved")
         toast({
           title: "Save failed",
-          description: "Failed to save your note. Please try again.",
+          description: "Failed to save your note. Your changes are stored locally.",
           variant: "destructive",
         })
       }
     }, 1000),
-    [noteId, router, toast],
+    [noteId, toast, session?.user?.id],
   )
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,6 +144,26 @@ export default function NewDocumentPage() {
       formData.append("title", title)
       formData.append("content", content)
 
+      // Save to localStorage first
+      if (isLocalStorageAvailable() && !noteId) {
+        const tempId = Date.now().toString()
+        setNoteId(tempId)
+
+        const note = {
+          id: tempId,
+          title,
+          content,
+          userId: session?.user?.id || "",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          isFavorite: false,
+        }
+
+        saveNoteToLocalStorage(note)
+        setSaveStatus("saved")
+      }
+
+      // Then save to server
       const result = await createNote(formData)
 
       if (result.success && result.noteId) {
@@ -100,13 +175,12 @@ export default function NewDocumentPage() {
           description: "Your note has been created successfully.",
         })
 
-        // Redirect to the new note page
-        router.push(`/documents/${result.noteId}`)
+        // Update URL without refreshing
+        window.history.replaceState({}, "", `/documents/${result.noteId}`)
       } else {
-        setSaveStatus("unsaved")
         toast({
           title: "Save failed",
-          description: result.error || "Failed to create note",
+          description: result.error || "Failed to save note",
           variant: "destructive",
         })
       }
@@ -115,7 +189,7 @@ export default function NewDocumentPage() {
       setSaveStatus("unsaved")
       toast({
         title: "Save failed",
-        description: "Failed to save your note. Please try again.",
+        description: "Failed to save your note.",
         variant: "destructive",
       })
     }
@@ -174,8 +248,11 @@ export default function NewDocumentPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>Share</DropdownMenuItem>
-                <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                <DropdownMenuItem disabled={!noteId}>Export</DropdownMenuItem>
+                <DropdownMenuItem disabled={!noteId}>Share</DropdownMenuItem>
+                <DropdownMenuItem className="text-destructive" disabled={!noteId}>
+                  Delete
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
