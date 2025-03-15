@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button"
-import { PlusCircle } from "lucide-react"
+import { PlusCircle, Search } from "lucide-react"
 import Link from "next/link"
 import { DocumentCard } from "@/components/document-card"
-import { SearchBar } from "@/components/search-bar"
 import { UserProfile } from "@/components/user-profile"
 import { getAuthSession } from "@/lib/auth"
 import { redirect } from "next/navigation"
@@ -45,6 +44,12 @@ export default async function Home() {
             <Link href="/favorites">Favorites</Link>
           </Button>
           <Button variant="ghost" className="w-full justify-start" asChild>
+            <Link href="/search">
+              <Search className="mr-2 h-4 w-4" />
+              Search Notes
+            </Link>
+          </Button>
+          <Button variant="ghost" className="w-full justify-start" asChild>
             <Link href="/trash">Trash</Link>
           </Button>
         </nav>
@@ -56,7 +61,12 @@ export default async function Home() {
           <div className="mb-8 flex items-center justify-between">
             <h2 className="text-2xl font-bold">All Notes</h2>
             <div className="flex items-center gap-4">
-              <SearchBar />
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/search">
+                  <Search className="mr-2 h-4 w-4" />
+                  Search
+                </Link>
+              </Button>
               <div className="md:hidden">
                 <UserProfile />
               </div>
