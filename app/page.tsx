@@ -78,7 +78,7 @@ export default async function Home() {
                   id={note.id}
                   title={note.title}
                   excerpt={note.content.replace(/<[^>]*>/g, "").substring(0, 100) + "..."}
-                  updatedAt={new Date(note.updatedAt).toLocaleString()}
+                  updatedAt={note.updatedAt}
                 />
               ))
             ) : (
@@ -87,13 +87,13 @@ export default async function Home() {
                   id="1"
                   title="Getting Started with NoteBuddy"
                   excerpt="Learn how to use NoteBuddy to organize your notes and documents."
-                  updatedAt="2 hours ago"
+                  updatedAt={new Date(Date.now() - 2 * 60 * 60 * 1000)} // 2 hours ago
                 />
                 <DocumentCard
                   id="2"
                   title="Project Ideas"
                   excerpt="Brainstorming session for upcoming projects and initiatives."
-                  updatedAt="Yesterday"
+                  updatedAt={new Date(Date.now() - 24 * 60 * 60 * 1000)} // 1 day ago
                 />
               </>
             )}
