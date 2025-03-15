@@ -11,9 +11,6 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "NoteBuddy",
   description: "A note-taking app inspired by Notion",
-  icons: {
-    icon: "/icon",
-  },
     generator: 'v0.dev'
 }
 
