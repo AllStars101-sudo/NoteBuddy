@@ -14,10 +14,15 @@ interface FileAttachmentProps {
 
 export function FileAttachment({ file }: FileAttachmentProps) {
   const formatFileSize = (bytes: number | string | null | undefined) => {
-    // Ensure bytes is a valid number
-    const size = Number(bytes)
-    if (isNaN(size) || size === 0) return "Unknown size"
+    // Convert to number if it's a string
+    const size = typeof bytes === "string" ? Number(bytes) : bytes
 
+    // Check if size is a valid number
+    if (size === null || size === undefined || isNaN(size) || size === 0) {
+      return "Unknown size"
+    }
+
+    // Format the size
     if (size < 1024) return size + " B"
     if (size < 1024 * 1024) return (size / 1024).toFixed(1) + " KB"
     return (size / (1024 * 1024)).toFixed(1) + " MB"

@@ -484,7 +484,7 @@ export default function DocumentPage({ params }: { params: { id: string } }) {
                 <TabsTrigger value="files">Files</TabsTrigger>
               </TabsList>
               <TabsContent value="content">
-                <Editor initialContent={content} onChange={handleContentChange} />
+                <Editor initialContent={content} onChange={handleContentChange} noteId={params.id} />
               </TabsContent>
               <TabsContent value="files">
                 <FileGallery documentId={params.id} />

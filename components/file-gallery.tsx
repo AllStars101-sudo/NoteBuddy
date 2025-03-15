@@ -33,7 +33,12 @@ export function FileGallery({ documentId }: FileGalleryProps) {
         if (result.error) {
           setError(result.error)
         } else {
-          setFiles(result.files)
+          // Ensure all files have a valid size property
+          const processedFiles = result.files.map((file) => ({
+            ...file,
+            size: typeof file.size === "number" && !isNaN(file.size) ? file.size : 0,
+          }))
+          setFiles(processedFiles)
         }
       } catch (err) {
         setError("Failed to load files")

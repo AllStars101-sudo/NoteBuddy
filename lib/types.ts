@@ -13,6 +13,7 @@ export type Note = {
   createdAt: Date
   updatedAt: Date
   isFavorite: boolean
+  hasFileContext?: boolean
 }
 
 export type FileMetadata = {

@@ -280,7 +280,7 @@ export default function NewDocumentPage() {
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="content">
-                <Editor onChange={handleContentChange} />
+                <Editor onChange={handleContentChange} noteId={noteId || ""} />
               </TabsContent>
               <TabsContent value="files">
                 {noteId ? (
