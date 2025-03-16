@@ -26,7 +26,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { debounce } from "lodash"
-import { exportNoteAsMarkdown } from "@/lib/export-utils"
 import { ConflictResolutionDialog } from "@/components/conflict-resolution-dialog"
 import {
   saveNoteToLocalStorage,
@@ -35,6 +34,7 @@ import {
   deleteNoteFromLocalStorage,
 } from "@/lib/local-storage"
 import { checkForConflicts, getMostUpToDateNote } from "@/lib/sync-service"
+import { ExportDialog } from "@/components/export-dialog"
 
 export default function DocumentPage({ params }: { params: { id: string } }) {
   const { data: session, status } = useSession()
@@ -55,6 +55,7 @@ export default function DocumentPage({ params }: { params: { id: string } }) {
     localNote: any
     remoteNote: any
   } | null>(null)
+  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false)
 
   // Load note on initial render
   useEffect(() => {
@@ -340,18 +341,7 @@ export default function DocumentPage({ params }: { params: { id: string } }) {
   }
 
   const handleExportNote = () => {
-    if (title && content && session?.user?.id) {
-      const noteToExport = {
-        id: params.id,
-        title,
-        content,
-        userId: session.user.id,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        isFavorite: isFavorite,
-      }
-      exportNoteAsMarkdown(noteToExport)
-    }
+    setIsExportDialogOpen(true)
   }
 
   const handleResolveConflict = async (resolvedNote: any) => {
@@ -454,8 +444,7 @@ export default function DocumentPage({ params }: { params: { id: string } }) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleExportNote}>Export as Markdown</DropdownMenuItem>
-                <DropdownMenuItem>Share</DropdownMenuItem>
+                <DropdownMenuItem onClick={handleExportNote}>Export</DropdownMenuItem>
                 <DropdownMenuItem className="text-destructive" onClick={() => setIsDeleteDialogOpen(true)}>
                   Delete
                 </DropdownMenuItem>
@@ -526,7 +515,24 @@ export default function DocumentPage({ params }: { params: { id: string } }) {
           }}
         />
       )}
+
+      {/* Export dialog */}
+      {initialLoadComplete && (
+        <ExportDialog
+          open={isExportDialogOpen}
+          onOpenChange={setIsExportDialogOpen}
+          note={{
+            id: params.id,
+            title,
+            content,
+            userId: session?.user?.id || "",
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            isFavorite,
+          }}
+          editorElementId="note-editor-content"
+        />
+      )}
     </div>
   )
 }
-

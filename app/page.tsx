@@ -37,17 +37,17 @@ export default async function Home() {
         </Button>
 
         <nav className="space-y-1">
+        <Button variant="ghost" className="w-full justify-start" asChild>
+            <Link href="/search">
+              <Search className="mr-2 h-4 w-4" />
+              Search Notes
+            </Link>
+          </Button>
           <Button variant="ghost" className="w-full justify-start" asChild>
             <Link href="/">All Notes</Link>
           </Button>
           <Button variant="ghost" className="w-full justify-start" asChild>
             <Link href="/favorites">Favorites</Link>
-          </Button>
-          <Button variant="ghost" className="w-full justify-start" asChild>
-            <Link href="/search">
-              <Search className="mr-2 h-4 w-4" />
-              Search Notes
-            </Link>
           </Button>
           <Button variant="ghost" className="w-full justify-start" asChild>
             <Link href="/trash">Trash</Link>
