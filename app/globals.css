@@ -98,4 +98,21 @@ body {
 @import "./file-context.css";
 @import "./voice-recording.css";
 @import "./ai-interface.css";
+@import "./login/login.css";
 
+@keyframes gradient-x {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient-x {
+  animation: gradient-x 15s ease infinite;
+  background-size: 200% 200%;
+}

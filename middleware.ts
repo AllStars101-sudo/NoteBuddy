@@ -14,7 +14,7 @@ export async function middleware(req: NextRequest) {
   // Allow public routes and API routes
   const isPublicPath = path === "/login" || path === "/error"
   const isApiPath = path.startsWith("/api/")
-  const isStaticPath = path.startsWith("/_next/") || path.includes("/favicon.ico") || path.startsWith("/images/")
+  const isStaticPath = path.startsWith("/_next/") || path.includes("/favicon.ico") || path.includes("/icon.png") || path.startsWith("/images/")
 
   // If it's a public path or API route, allow access
   if (isPublicPath || isApiPath || isStaticPath) {
