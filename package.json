@@ -76,7 +76,10 @@
     "lodash": "latest",
     "ai": "latest",
     "@ai-sdk/openai": "latest",
-    "fuse.js": "latest"
+    "fuse.js": "latest",
+    "docx": "^8.2.3",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.1"
   },
   "devDependencies": {
     "@types/node": "^22",

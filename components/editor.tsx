@@ -215,8 +215,8 @@ export function Editor({ initialContent = "", onChange, noteId = "" }: EditorPro
       const { view } = editor
       const { state } = view
       const { selection } = state
-      const { from } = selection
 
+      const { from } = selection
       // Get coordinates
       const start = view.coordsAtPos(from)
 
@@ -467,7 +467,7 @@ export function Editor({ initialContent = "", onChange, noteId = "" }: EditorPro
           className="ai-gradient-border"
         >
           <div className="bg-background/95 backdrop-blur-sm rounded-[0.7rem] h-full">
-            <EditorContent editor={editor} className="min-h-[500px] p-4" ref={editorRef} />
+            <EditorContent editor={editor} className="min-h-[500px] p-4" ref={editorRef} id="note-editor-content" />
           </div>
         </motion.div>
 
@@ -486,4 +486,3 @@ export function Editor({ initialContent = "", onChange, noteId = "" }: EditorPro
     </div>
   )
 }
-
