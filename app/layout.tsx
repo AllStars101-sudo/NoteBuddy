@@ -12,7 +12,13 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "NoteBuddy",
   description: "A note-taking app inspired by Notion",
-    generator: 'v0.dev'
+  generator: 'v0.dev',
+  icons: {
+    icon: '/icon.png',
+    // You can also add other sizes
+    //apple: '/apple-touch-icon.png',
+    shortcut: '/icon.png',
+  }
 }
 
 export default function RootLayout({
