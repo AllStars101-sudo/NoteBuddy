@@ -2,7 +2,8 @@
 
 # NoteBuddy: A Note-Taking App That Doesn't Suck
 
-### Demo available [here](https://www.youtube.com/watch?v=IJSRWzBrdW0)
+### Keynote [here](https://www.youtube.com/watch?v=IJSRWzBrdW0)
+### Demo link [here](https://note-buddy-frostwire.vercel.app)
 
 ## Inspiration
 NoteBuddy was born out of our frustration with traditional note-taking apps, which lack the contextual intelligence needed for efficient learning and productivity. As students juggling diverse courses and professionals managing complex projects, we realized note-taking could be significantly smarter. We envisioned a tool that doesn't just store information but actively participates in our thinking process, streamlining ideas, offering smart suggestions, and even transcribing conversations intelligently.
